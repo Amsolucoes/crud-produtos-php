@@ -8,9 +8,13 @@ use Illuminate\Http\Request;
 class ProdutoController extends Controller
 {
 // GET /api/produtos - lista todos
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Produto::all());
+        $porPagina = $request->query('per_page', 10);
+
+        $produtos = Produto::paginate($porPagina);
+
+        return response()->json($produtos);
     }
 
     // POST /api/produtos - cria um novo
