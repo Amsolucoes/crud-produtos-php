@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class ProdutoController extends Controller
 {
-// GET /api/produtos - lista todos
+    // GET /api/produtos - lista todos
     public function index(Request $request)
     {
         $porPagina = $request->query('per_page', 10);
@@ -15,6 +15,26 @@ class ProdutoController extends Controller
         $produtos = Produto::paginate($porPagina);
 
         return response()->json($produtos);
+    }
+
+    // GET /api/produtos-xml - lista todos em formato XML
+    public function exportarXml()
+    {
+        $produtos = Produto::all();
+
+        $xml = new \SimpleXMLElement('<produtos/>');
+
+        foreach ($produtos as $produto) {
+            $item = $xml->addChild('produto');
+            $item->addChild('id', $produto->id);
+            $item->addChild('nome', htmlspecialchars($produto->nome));
+            $item->addChild('descricao', htmlspecialchars($produto->descricao ?? ''));
+            $item->addChild('preco', $produto->preco);
+            $item->addChild('quantidade_estoque', $produto->quantidade_estoque);
+        }
+
+        return response($xml->asXML(), 200)
+            ->header('Content-Type', 'application/xml');
     }
 
     // POST /api/produtos - cria um novo

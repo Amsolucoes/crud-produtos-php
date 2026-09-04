@@ -126,4 +126,19 @@ class ProdutoTest extends TestCase
 
         $response->assertStatus(401);
     }
+
+    public function test_exporta_produtos_em_xml(): void
+    {
+        $this->autenticar();
+
+        Produto::factory()->count(3)->create();
+
+        $response = $this->get('/api/produtos-xml');
+
+        $response->assertStatus(200)
+            ->assertHeader('Content-Type', 'application/xml');
+
+        $xml = simplexml_load_string($response->getContent());
+        $this->assertCount(3, $xml->produto);
+    }
 }
